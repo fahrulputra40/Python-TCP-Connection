@@ -34,7 +34,7 @@ class MQTT:
                 encodeByte = encodeByte | 128
             
             c = ""
-            if encodeByte > 9:
+            if encodeByte > 15:
                 c = "{}".format(hex(encodeByte).lstrip("0x").rstrip("L") or "0")
             
             else:
@@ -99,7 +99,7 @@ class MQTT:
                 encodeByte = encodeByte | 128
             
             c = ""
-            if encodeByte > 9:
+            if encodeByte > 15:
                 c = "{}".format(hex(encodeByte).lstrip("0x").rstrip("L") or "0")
             
             else:
@@ -167,7 +167,7 @@ class MQTT:
                 encodeByte = encodeByte | 128
             
             c = ""
-            if encodeByte > 9:
+            if encodeByte > 15:
                 c = "{}".format(hex(encodeByte).lstrip("0x").rstrip("L") or "0")
             
             else:
