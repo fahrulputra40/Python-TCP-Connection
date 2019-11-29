@@ -4,11 +4,10 @@ import sys
 from time import sleep
 
 class MQTT:    
-    def __init__(self, mqttUsername, mqttPassword, mqttClient):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__mqttUsername = mqttUsername
-        self.__mqttPassword = mqttPassword
-        self.__mqttClient = mqttClient 
+    def __init__(self):
+        self.__mqttUsername = ""
+        self.__mqttPassword = ""
+        self.__mqttClient = ""
         self.__mqttProtocol = "MQIsdp"
         self.__mqttLvl = 0x03
         self.__mqttFlags = 0xC2
@@ -17,6 +16,24 @@ class MQTT:
         self.__mqttKeepAlive = 60
         self.__timeOutReceive = 1 #in seconds
         self.__Connect = False
+        self.__mqtthost = None
+        self.__mqttPort = 0
+        self.ip = None
+
+    def setUsername(self,userName):
+        self.__mqttUsername = userName
+
+    def setClientID(self,ID):
+        self.__mqttClient = ID
+
+    def setHost(self,host):
+        self.__mqtthost = host
+
+    def setPassword(self,password):
+        self.__mqttPassword = password
+
+    def setPort(self,port):
+        self.__mqttPort = port
 
     def setTimeOutReceiveData(self, s):
         self.__timeOutReceive = s
@@ -60,13 +77,25 @@ class MQTT:
         else:
             return False
 
-    def connect(self,host,port):
-        if(type(host) == int):
-            ip = host
+    def connect(self,host = None, port = None):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if host != None and port != None:
+            self.__mqtthost = host
+            self.__mqttPort = port
+
+        if self.__mqttPort == 0 or self.__mqtthost == None:
+            return False
+
+        print(self.__mqtthost)
+        print(self.__mqttPort)
+
+        if(type(self.__mqtthost) == int):
+            self.ip = self.__mqtthost
         else:
-            ip = socket.gethostbyname(host)
+            self.ip = socket.gethostbyname(self.__mqtthost)
+            print(self.ip)
         try:
-            self.s.connect((ip, port))
+            self.s.connect((self.ip, self.__mqttPort))
             self.__Connect = True
             return True
         except:
@@ -217,18 +246,36 @@ class MQTT:
         elif len(data)>4:
             return data[4:]
 
+    def checkConnection(self):
+        result = self.s.connect_ex((self.ip,self.port))
+        if result == 0:
+            return False
+        else:
+            return True
+
 if __name__ == "__main__":
     Host = "tailor.cloudmqtt.com"
     Port = 15715
-    mqtt = MQTT("cyvtuetu","B3i7k9kX86pJ","ABCDEF")
-    mqtt.connect(Host,Port)
+    #"cyvtuetu","B3i7k9kX86pJ","ABCDEF"
+    mqtt = MQTT()
+    mqtt.setClientID("ABCDEF")
+    mqtt.setHost(Host)
+    mqtt.setPort(Port)
+    mqtt.setPassword("B3i7k9kX86pJ")
+    mqtt.setUsername("cyvtuetu")
+    mqtt.connect()
     sleep(2)
     mqtt.connectionPacket()
     sleep(2)
-    mqtt.subscribe("dd")
+    mqtt.subscribe("aaa")
+    sleep(2)
     
     for i in range(5):
-        mqtt.publish("aaa",12)
+        i = mqtt.publish("aaa",12)
+        if i:
+            print("ok")
+        else:
+            print("false")
         print(mqtt.receiveData())
         sleep(2)
 
